@@ -1,0 +1,22 @@
+{
+  "pages": [
+    
+    "pages/userLogin/login",
+    "pages/videoInfo/videoInfo",
+    "pages/searchVideo/searchVideo",
+    "pages/index/index",
+    "pages/userRegist/regist",
+    "pages/mine/mine",
+    "pages/chooseBgm/chooseBgm"
+    
+    
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#fff",
+    "navigationBarTitleText": "风铃短视频",
+    "navigationBarTextStyle": "black"
+  },
+  "debug": true,
+  "sitemapLocation": "sitemap.json"
+}

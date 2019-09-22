@@ -1,0 +1,14 @@
+<!--index.wxml-->
+<view wx:for="{{videoList}}" class="item-container">
+  <!-- 视频 -->
+  <view style='width:{{screenWidth}};height:210px' class='back-img'>
+    <image src='{{videoUrlPre}}{{item.coverPath}}' style='width:350px;height:210px' mode='aspectFit' bindtap='showVideoInfo' data-arrindex='{{index}}'></image>
+  </view>
+
+  <!-- 视频介绍 -->
+  <view class='desc'>
+    <view class='faceName'> </view>
+    <image class='myface' src='{{videoUrlPre}}{{item.faceImage}}'></image>
+    <view class='nickname'>{{item.nickname}}</view>
+  </view>
+</view>
