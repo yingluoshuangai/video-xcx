@@ -4,14 +4,48 @@ var videoUtil = require('../../util/upload-video.js')
 Page({
   data: {
     faceUrl: "../resource/images/noneface.png",//默认头像
-    faceUrlPrefix: app.serverUrl //头像前缀
+    faceUrlPrefix: app.serverUrl, //头像前缀
+    isMe:true, //是否本人 
+    isFollow:false, //是否关注
+    publisherId:''//关注者id
   },
 
   //加载页面时，查询用户信息 #why#
-  onLoad:function(){
+  onLoad:function(params){
     var me = this;//注意this的作用域问题
     var serverUrl = app.serverUrl;
+    var user = app.getGlobalUserInfo();
     var userId = app.getGlobalUserInfo().id;
+    //debugger
+    // 如果publisher有值 表明是别人访问主页
+    var publisherId = params.publisherId
+    if(publisherId != null && publisherId != undefined && publisherId != ''){
+        userId = publisherId
+        me.setData({
+          isMe:false,
+          publisherId:publisherId
+        })
+      //判断用户是否关注
+      wx.request({
+        url: app.serverUrl + '/user/isFollow?userId=' + publisherId + '&fansId=' + user.id,
+        method: 'POST',
+        header: {
+          'userId': user.id,
+          'userToken': user.userToken
+        },
+        success: function (res) {
+          console.log(res)
+          if (res.data.data == '1') {
+            //关注中
+            me.setData({
+              isFollow: true
+            })
+
+          }
+        }
+      })
+    }
+
     wx.showLoading({
       title: '请等待',
     })
@@ -19,8 +53,8 @@ Page({
       url: serverUrl + '/user/findOne?userId=' + userId,
       method : 'POST',
       header:{
-        'userId':userId,
-        'userToken': app.getGlobalUserInfo().userToken
+        'userId':user.id,
+        'userToken': user.userToken
       },
       success:function(res){
         console.log(res);
@@ -157,6 +191,39 @@ Page({
   //上传视频
   uploadVideo : function(){
     videoUtil.uploadVideo();
+  },
+
+  //关注与取消关注
+  followMe:function(e){
+    var that = this
+    var publisherId = that.data.publisherId
+    var user = app.getGlobalUserInfo()
+    var followType = e.currentTarget.dataset.followtype;
+    var url = ''
+    //关注或者取消关注
+    if(followType == 0){
+      //取消关注
+      url = app.serverUrl + '/user/noAttention?userId=' + publisherId + '&fansId=' + user.id
+    }else if(followType == 1){
+      //关注
+      url = app.serverUrl + '/user/attention?userId=' + publisherId + '&fansId=' + user.id
+    }
+    wx.request({
+      url: url,
+      method:'POST',
+      header:{
+        'userId': user.id,
+        'userToken': user.userToken
+      },
+      success:function(res){
+        console.log(res)
+        that.setData({
+          isFollow:!that.data.isFollow
+        })
+      }
+    })
+
+
   }
 
 

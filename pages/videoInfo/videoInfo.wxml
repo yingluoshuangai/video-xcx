@@ -12,7 +12,7 @@
 
     <cover-view class='container-me'>
       <!-- 头像 -->
-      <cover-image class="face" src='' bindtap='showPublisher'></cover-image>
+      <cover-image  class="face" src = '{{faceImageUrl}}' bindtap='showPublisher'></cover-image>
       <!-- 喜欢收藏按钮 -->
       <block wx:if="{{isLikeVideo}}">
         <cover-image class="size-me" src='../resource/images/like.png' style='margin-top:30rpx;' bindtap='likeVideoOrNot'></cover-image>
@@ -25,6 +25,11 @@
       <cover-image class="size-me" src='../resource/images/comments.png' style='margin-top:30rpx;' bindtap='leaveComment'></cover-image>
       <!-- 分享按钮 -->
       <cover-image class="size-me" src='../resource/images/share.png' style='margin-top:30rpx;' bindtap='shareMe'></cover-image>
+    </cover-view>
+
+    <cover-view class='container-words'>
+      <cover-view>@{{publisher.nickname}}</cover-view>
+      <cover-view class='video-desc'>{{videoInfo.videoDesc}}</cover-view>
     </cover-view>
 
     <cover-view class='container-bottom'>

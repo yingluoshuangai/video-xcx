@@ -5,14 +5,16 @@ var videoUtil = require('../../util/upload-video.js')
 Page({
   data: {
     objectFit : 'cover',
-    videoInfo:{}, 
+    videoInfo:{}, //视频信息
     videoUrl:"",
-    isLikeVideo:false //用户是否喜欢视频 默认false
+    isLikeVideo:false, //用户是否喜欢视频 默认false
+    publisher: {},//发布者信息
+    faceImageUrl:'' //头像地址
   },
 
   onLoad: function(params){
     var that = this
-    app.isLogin();
+    app.isLogin();//判断用户是否登陆
     var user = app.getGlobalUserInfo();
     //加载视频
     var videoInfo = JSON.parse(params.videoInfo);
@@ -44,6 +46,22 @@ Page({
             'isLikeVideo':true
           })
         }
+      }
+    })
+    //获得该视频用户信息
+    wx.request({
+      url: app.serverUrl + '/user/findOne?userId=' + that.data.videoInfo.userId,
+      method:'POST',
+      header:{
+        'userId':user.id,
+        'userToken':user.userToken
+      },
+      success:function(res){
+        console.log(res);
+        that.setData({
+          'publisher':res.data.data,
+          'faceImageUrl':app.serverUrl + res.data.data.faceImage
+        });
       }
     })
   },
@@ -116,6 +134,15 @@ Page({
           'isLikeVideo':!isLikeVideo
         });
       }
+    })
+  },
+
+  //头像点击事件
+  showPublisher:function(){
+    var that = this
+    //进入用户主页
+    wx.navigateTo({
+      url: '../mine/mine?publisherId=' + that.data.publisher.id,
     })
   }
 })

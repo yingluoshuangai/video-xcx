@@ -50,7 +50,7 @@ Page({
           } else { //注册失败
             wx.showToast({
               title: res.data.detail,
-              icon: none,
+              icon: 'none',
               duration: 3000
             })
           }
