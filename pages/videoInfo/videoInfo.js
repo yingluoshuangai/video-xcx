@@ -144,5 +144,28 @@ Page({
     wx.navigateTo({
       url: '../mine/mine?publisherId=' + that.data.publisher.id,
     })
+  },
+
+  //分享按钮
+  shareMe:function(){
+    var that = this
+    wx.showActionSheet({
+      itemList: ['下载到本地', '举报用户'],
+      success:function(res){
+        console.log(res)
+        var tapIndex = res.tapIndex
+        if('0' == tapIndex){
+          //下载到本地
+        }else if('1' == tapIndex){
+          //举报用户
+          var videoId = that.data.videoInfo.id
+          var publishUserId = that.data.videoInfo.userId
+          wx.navigateTo({
+            url: '../report/report?videoId=' + videoId + '&publishUserId=' + publishUserId ,
+          })
+        }
+        
+      }
+    })
   }
 })

@@ -7,7 +7,21 @@ Page({
     faceUrlPrefix: app.serverUrl, //头像前缀
     isMe:true, //是否本人 
     isFollow:false, //是否关注
-    publisherId:''//关注者id
+    publisherId:'',//关注者id
+    serverUrl:app.serverUrl,
+
+    //作品 收藏 关注 的样式
+    videoSelClass:"video-info", //默认样式
+    isSelectedWork:"video-info-selected", //选中样式
+    isSelectedLike:"",
+    isSelectedFollow:"",
+
+    myVideoList:[],
+    totalPage:'1',
+    pageNum:'1',
+    pageSize:'5',
+    currentTag: 'me', //当前所在tag页 me 作品页 like 收藏页 follow 关注页
+
   },
 
   //加载页面时，查询用户信息 #why#
@@ -19,7 +33,7 @@ Page({
     //debugger
     // 如果publisher有值 表明是别人访问主页
     var publisherId = params.publisherId
-    if(publisherId != null && publisherId != undefined && publisherId != ''){
+    if(publisherId != null && publisherId != undefined && publisherId != '' && publisherId != userId){
         userId = publisherId
         me.setData({
           isMe:false,
@@ -86,6 +100,8 @@ Page({
         }
       }
     })
+
+    me.doSelectWork();//展示作品页面
   },
 
   //注销事件
@@ -222,9 +238,123 @@ Page({
         })
       }
     })
+  },
 
+  // 作品 收藏 关注 点击事件
+  //作品 点击事件
+  doSelectWork:function(){
+    var that = this
+    that.setData({
+      isSelectedWork: "video-info-selected", //为作品按钮添加选中样式
+      isSelectedLike: "",
+      isSelectedFollow: "",
+      currentTag: 'me',
+      myVideoList:[],
+      pageNum:'1',
+      totalPage:'1',
+    })
+    var user = app.getGlobalUserInfo();
+    var url = app.serverUrl + '/video/findListByMe?userId=' + user.id
+      + '&pageNum=' + that.data.pageNum + '&pageSize=' + that.data.pageSize
+    this.getVideoList(url)
+  },
+ 
+  //收藏 点击事件
+  doSelectLike:function(){
+    var that = this
+    that.setData({
+      isSelectedWork: "",
+      isSelectedLike: "video-info-selected", //选中样式
+      isSelectedFollow: "",
+      currentTag: 'like',
+      myVideoList: [],
+      pageNum: '1',
+      totalPage: '1',
+    })
 
+    var user = app.getGlobalUserInfo();
+    var url = app.serverUrl + '/video/findListByLike?loginUserId=' + user.id
+      + '&pageNum=' + that.data.pageNum + '&pageSize=' + that.data.pageSize
+    this.getVideoList(url)
+  },
+
+  //关注 点击事件
+  doSelectFollow:function(){
+    var that = this
+    that.setData({
+      isSelectedWork: "",
+      isSelectedLike: "",
+      isSelectedFollow: "video-info-selected", //选中样式
+      currentTag: 'follow',
+      myVideoList: [],
+      pageNum: '1',
+      totalPage: '1',
+    })
+
+    var user = app.getGlobalUserInfo();
+    var url = app.serverUrl + '/video/findListByFollow?fansId=' + user.id
+      + '&pageNum=' + that.data.pageNum + '&pageSize=' + that.data.pageSize
+    this.getVideoList(url)
+  },
+
+  //获得视频列表
+  getVideoList:function(url){
+    var that = this
+    var user = app.getGlobalUserInfo();
+
+    wx.request({
+      url: url,
+      method:'POST',
+      header:{
+        'userId': user.id,
+        'userToken': user.userToken
+      },
+      success:function(res){
+        console.log(res)
+        var myVideoList = that.data.myVideoList
+        that.setData({
+          myVideoList:myVideoList.concat(res.data.data.list),
+          totalPage: res.data.data.pages,
+          pageNum: res.data.data.pageNum
+        })
+      }
+    })
+  },
+
+  //上拉事件
+  onReachBottom: function () {
+    var that = this
+    var user = app.getGlobalUserInfo();
+    var pageNum = that.data.pageNum + 1
+    var pageSize = that.data.pageSize
+
+    if('me' == that.data.currentTag){
+      var url = app.serverUrl + '/video/findListByMe?userId=' + user.id
+        + '&pageNum=' + pageNum + '&pageSize=' + pageSize
+      that.getVideoList(url)
+    }
+    if('like' == that.data.currentTag){
+      var url = app.serverUrl + '/video/findListByLike?loginUserId=' + user.id
+        + '&pageNum=' + pageNum + '&pageSize=' + pageSize
+      that.getVideoList(url)
+    }
+    if('follow' == that.data.currentTag){
+      var url = app.serverUrl + '/video/findListByFollow?fansId=' + user.id
+        + '&pageNum=' + pageNum + '&pageSize=' + pageSize
+      that.getVideoList(url)
+    }
+  },
+
+  //视频点击事件
+  showVideo:function(e){
+    var that = this;
+    var videoList = that.data.myVideoList;
+    var arrindex = e.target.dataset.arrindex;//视频下标
+    var videoInfo = JSON.stringify(videoList[arrindex]);// 页面传递对象 需要转成String进行
+    //跳转到视频详情页
+    wx.navigateTo({
+      url: '../videoInfo/videoInfo?videoInfo=' + videoInfo,
+    })
   }
-
 
 })
